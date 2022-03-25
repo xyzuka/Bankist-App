@@ -83,9 +83,33 @@ const displayMovements = function (movements) {
 };
 displayMovements(account1.movements);
 
-/* Notes:
+/* Notes from updating the DOM movement container:
     1. Template literals are useful for inserting raw html 
     2. .insertAdjacentHTML() is used to insert the raw html created into the selected DOM element
     3. innerHTML returns all of the html items
     4. textContent returns only the text content 
+*/
+
+// Computing usernames for each user stored in data
+// Usernames will be their initials in lower case
+
+const createUserNames = function (accs) {
+  accs.forEach(function (acc) {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(" ")
+      .map((name) => name[0])
+      .join("");
+  });
+};
+createUserNames(accounts);
+console.log(accounts);
+
+/* Notes from computing usernames
+    1. A function was created to create a new property in the accounts object to create the account's username based off their initials 
+    2. The initials were created by referencing the account owner's name and chaining four methods 
+    - .toLowerCase() : to convert the owner's name to lowercase
+    - .split(' ') : to split the owner's name into an array of substrings
+    - .map((name) => name[0]) : to obtain the first letter of the owner's name
+    - .join() : to join the first letters together to create the initials as a single string
 */
