@@ -90,6 +90,19 @@ displayMovements(account1.movements);
     4. textContent returns only the text content 
 */
 
+// Calculating user balance and updating the DOM
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `$${balance}`;
+};
+calcDisplayBalance(account1.movements);
+
+/* Notes from updating the DOM balance
+    1. A function was created taking in the user account's movements as a parameter
+    2. This movement is then passed as an array with the reduce method to calculate the total end sum of the balance
+    3. The DOM element which display's the user's balance is then updated based off the total end sum 
+*/
+
 // Computing usernames for each user stored in data
 // Usernames will be their initials in lower case
 
