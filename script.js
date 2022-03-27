@@ -84,10 +84,10 @@ const displayMovements = function (movements) {
 displayMovements(account1.movements);
 
 /* Notes from updating the DOM movement container:
-    1. Template literals are useful for inserting raw html 
+    1. Template literals are useful for inserting raw html
     2. .insertAdjacentHTML() is used to insert the raw html created into the selected DOM element
     3. innerHTML returns all of the html items
-    4. textContent returns only the text content 
+    4. textContent returns only the text content
 */
 
 // Calculating user balance and updating the DOM
@@ -100,8 +100,31 @@ calcDisplayBalance(account1.movements);
 /* Notes from updating the DOM balance
     1. A function was created taking in the user account's movements as a parameter
     2. This movement is then passed as an array with the reduce method to calculate the total end sum of the balance
-    3. The DOM element which display's the user's balance is then updated based off the total end sum 
+    3. The DOM element which display's the user's balance is then updated based off the total end sum
 */
+
+// Calculating total deposits, withdraws, interest and updating the DOM
+const calcDisplaySummary = function (movements) {
+  const incomes = movements
+    .filter((mov) => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = `$${incomes}`;
+
+  const withdrawals = movements
+    .filter((mov) => mov < 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumOut.textContent = `$${Math.abs(withdrawals)}`;
+
+  // Interest is paid on each deposit of 1.2%
+  // Only interest payments equal to or above $1 are included
+  const interest = movements
+    .filter((mov) => mov > 0)
+    .map((deposit) => deposit * 0.012)
+    .filter((interest, index, array) => interest >= 1)
+    .reduce((acc, interest) => acc + interest, 0);
+  labelSumInterest.textContent = `$${interest}`;
+};
+calcDisplaySummary(account1.movements);
 
 // Computing usernames for each user stored in data
 // Usernames will be their initials in lower case
@@ -116,11 +139,10 @@ const createUserNames = function (accs) {
   });
 };
 createUserNames(accounts);
-console.log(accounts);
 
 /* Notes from computing usernames
-    1. A function was created to create a new property in the accounts object to create the account's username based off their initials 
-    2. The initials were created by referencing the account owner's name and chaining four methods 
+    1. A function was created to create a new property in the accounts object to create the account's username based off their initials
+    2. The initials were created by referencing the account owner's name and chaining four methods
     - .toLowerCase() : to convert the owner's name to lowercase
     - .split(' ') : to split the owner's name into an array of substrings
     - .map((name) => name[0]) : to obtain the first letter of the owner's name
