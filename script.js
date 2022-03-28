@@ -1,5 +1,4 @@
 "use strict";
-
 /////////////////////////////////////////////////
 // ELEMENTS
 const labelWelcome = document.querySelector(".welcome");
@@ -248,5 +247,38 @@ btnTransfer.addEventListener("click", function (e) {
         - Check if the receiver account exists with optional chaining (?)
     6. Push a negative amount of the transfer from the currentAccount; Push a positive amount of the transfer to the receiver
     7. Refactoring the UI display functions into one function
+*/
 
+// THE .findIndex() METHOD
+// Returns the index of the returned element and not the element itself
+
+// Practical Example: Close account functionality
+// Closing an account will delete the user's account and from accounts array and the .findIndex() method will help us target the specific account
+btnClose.addEventListener("click", function (e) {
+  e.preventDefault();
+
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    const index = accounts.findIndex(
+      (acc) => acc.username === currentAccount.username
+    );
+
+    // Delete user account from the accounts array
+    accounts.splice(index, 1);
+
+    // Log user out by hiding UI
+    containerApp.style.opacity = 0;
+
+    // Clearing fields
+    inputCloseUsername.value = inputClosePin.value = "";
+  }
+});
+
+/* Notes from closing user account
+  1. Add an event listener to the close account button
+  2. Check if the username value and password is the same as the current account details
+  3. Use the .findIndex() method to loop through the array to find the matching account username and then splice that specific index from the accounts array
+  4. Clear input fields for closing the account
 */
