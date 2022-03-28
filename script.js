@@ -90,9 +90,9 @@ const displayMovements = function (movements) {
 */
 
 // Calculating user balance and updating the DOM
-const calcDisplayBalance = function (movements) {
-  const balance = movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `$${balance}`;
+const calcDisplayBalance = function (acc) {
+  acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `$${acc.balance}`;
 };
 
 /* Notes from updating the DOM balance
@@ -146,6 +146,18 @@ createUserNames(accounts);
     - .join() : to join the first letters together to create the initials as a single string
 */
 
+// Update UI functionality
+const updateUI = function (acc) {
+  // Display movements
+  displayMovements(acc.movements);
+
+  // Display balance
+  calcDisplayBalance(acc);
+
+  // Display summary
+  calcDisplaySummary(acc);
+};
+
 // Login functionality
 
 let currentAccount;
@@ -175,14 +187,7 @@ btnLogin.addEventListener("click", function (e) {
   inputLoginUsername.blur();
   inputLoginPin.blur();
 
-  // Display movements
-  displayMovements(currentAccount.movements);
-
-  // Display balance
-  calcDisplayBalance(currentAccount.movements);
-
-  // Display summary
-  calcDisplaySummary(currentAccount);
+  updateUI(currentAccount);
 });
 
 /* Notes from creating Login:
@@ -199,4 +204,49 @@ btnLogin.addEventListener("click", function (e) {
     8. Running the functions which displays the movements, balance, and summary based off the currentAccount
     9. Emptying the login field once the user has logged in
     10. Updating the interest function based off the current user logged in
+*/
+
+// Transfer functionality
+btnTransfer.addEventListener("click", function (e) {
+  e.preventDefault();
+  const receiverAcc = accounts.find(
+    (acc) => acc.username === inputTransferTo.value
+  );
+  const amount = Number(inputTransferAmount.value);
+  console.log(amount, receiverAcc);
+
+  // Empties input fields
+  inputTransferTo.value = inputTransferAmount.value = "";
+  inputTransferTo.blur();
+  inputTransferAmount.blur();
+
+  // Checking if user has enough money to transfer
+  if (
+    amount > 0 &&
+    receiverAcc &&
+    currentAccount.balance >= amount &&
+    receiverAcc?.username !== currentAccount.username
+  ) {
+    // Transferring
+    currentAccount.movements.push(-amount);
+    receiverAcc.movements.push(amount);
+
+    // Updating UI
+    updateUI(currentAccount);
+  }
+});
+
+/* Notes from adding transfer functionality
+    1. Add an event listener to the transfer button and prevent the page from refreshing 
+    2. Assign the transfer amount to a variable 
+    3. Use the .find method to look for the specific username the amount was transferred o and stored it in a variable
+    4. .blur() the amounts
+    5. Check if the transfer is positive, and check if the user has enough money to transfer
+        - We need to update the calcDisplayBalance function to store the balance of the account based off the movement since it was previously hardcoded
+        - We need to check if the receiver account exists
+        - We need make sure the user cannot transfer to himself 
+        - Check if the receiver account exists with optional chaining (?)
+    6. Push a negative amount of the transfer from the currentAccount; Push a positive amount of the transfer to the receiver
+    7. Refactoring the UI display functions into one function
+
 */
