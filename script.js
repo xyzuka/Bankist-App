@@ -30,7 +30,7 @@ const inputClosePin = document.querySelector(".form__input--pin");
 /////////////////////////////////////////////////
 // DATA
 const account1 = {
-  owner: "Jonas Schmedtmann",
+  owner: "Brandon Yee",
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
   interestRate: 1.2, // %
   pin: 1111,
@@ -81,7 +81,6 @@ const displayMovements = function (movements) {
     containerMovements.insertAdjacentHTML("afterbegin", html);
   });
 };
-displayMovements(account1.movements);
 
 /* Notes from updating the DOM movement container:
     1. Template literals are useful for inserting raw html
@@ -95,7 +94,6 @@ const calcDisplayBalance = function (movements) {
   const balance = movements.reduce((acc, mov) => acc + mov, 0);
   labelBalance.textContent = `$${balance}`;
 };
-calcDisplayBalance(account1.movements);
 
 /* Notes from updating the DOM balance
     1. A function was created taking in the user account's movements as a parameter
@@ -104,27 +102,26 @@ calcDisplayBalance(account1.movements);
 */
 
 // Calculating total deposits, withdraws, interest and updating the DOM
-const calcDisplaySummary = function (movements) {
-  const incomes = movements
+const calcDisplaySummary = function (acc) {
+  const incomes = acc.movements
     .filter((mov) => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumIn.textContent = `$${incomes}`;
 
-  const withdrawals = movements
+  const withdrawals = acc.movements
     .filter((mov) => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumOut.textContent = `$${Math.abs(withdrawals)}`;
 
   // Interest is paid on each deposit of 1.2%
   // Only interest payments equal to or above $1 are included
-  const interest = movements
+  const interest = acc.movements
     .filter((mov) => mov > 0)
-    .map((deposit) => deposit * 0.012)
+    .map((deposit) => (deposit * acc.interestRate) / 100)
     .filter((interest, index, array) => interest >= 1)
     .reduce((acc, interest) => acc + interest, 0);
   labelSumInterest.textContent = `$${interest}`;
 };
-calcDisplaySummary(account1.movements);
 
 // Computing usernames for each user stored in data
 // Usernames will be their initials in lower case
@@ -147,4 +144,59 @@ createUserNames(accounts);
     - .split(' ') : to split the owner's name into an array of substrings
     - .map((name) => name[0]) : to obtain the first letter of the owner's name
     - .join() : to join the first letters together to create the initials as a single string
+*/
+
+// Login functionality
+
+let currentAccount;
+
+// EVENT HANDLERS
+btnLogin.addEventListener("click", function (e) {
+  e.preventDefault();
+
+  currentAccount = accounts.find(
+    (acc) => acc.username === inputLoginUsername.value
+  );
+  console.log(currentAccount);
+
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    console.log("LOGIN");
+  }
+
+  // Display UI and welcome message
+  labelWelcome.textContent = `Welcome back, ${
+    currentAccount.owner.split(" ")[0]
+  }`;
+
+  containerApp.style.opacity = 100;
+
+  // Empty login fields and un-focusing login
+  inputLoginUsername.value = inputLoginPin.value = "";
+  inputLoginUsername.blur();
+  inputLoginPin.blur();
+
+  // Display movements
+  displayMovements(currentAccount.movements);
+
+  // Display balance
+  calcDisplayBalance(currentAccount.movements);
+
+  // Display summary
+  calcDisplaySummary(currentAccount);
+});
+
+/* Notes from creating Login:
+    1. Button in a form element - default behavior for a form when a form is submitted is to reload the page
+      - To solve this, we need to prevent the form from reloading 
+      - Give an event parameter in the function, and call the preventDefault method
+      - preventDefault(); prevents a form to submit and reload the page
+    2. Using the .find() method, we will match the user input to the accounts object's username 
+    3. Define a current account to keep track of the account logged in
+    4. Add a if statement to match the login pin (also convert the user input as a number since .value always returns a string)
+    5. To see if an account exists when entering a pin, we use optional chaining (?) - will short-circuit with a return value of undefined if currentAccount is null or undefined
+    6. Change the textContent of the login prompt with a welcome message referencing to the currentAccount logged in
+    7. Setting the opacity of the dashboard back to 100
+    8. Running the functions which displays the movements, balance, and summary based off the currentAccount
+    9. Emptying the login field once the user has logged in
+    10. Updating the interest function based off the current user logged in
 */
