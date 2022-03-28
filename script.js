@@ -1,4 +1,5 @@
 "use strict";
+
 /////////////////////////////////////////////////
 // ELEMENTS
 const labelWelcome = document.querySelector(".welcome");
@@ -191,10 +192,10 @@ btnLogin.addEventListener("click", function (e) {
 
 /* Notes from creating Login:
     1. Button in a form element - default behavior for a form when a form is submitted is to reload the page
-      - To solve this, we need to prevent the form from reloading 
+      - To solve this, we need to prevent the form from reloading
       - Give an event parameter in the function, and call the preventDefault method
       - preventDefault(); prevents a form to submit and reload the page
-    2. Using the .find() method, we will match the user input to the accounts object's username 
+    2. Using the .find() method, we will match the user input to the accounts object's username
     3. Define a current account to keep track of the account logged in
     4. Add a if statement to match the login pin (also convert the user input as a number since .value always returns a string)
     5. To see if an account exists when entering a pin, we use optional chaining (?) - will short-circuit with a return value of undefined if currentAccount is null or undefined
@@ -236,14 +237,14 @@ btnTransfer.addEventListener("click", function (e) {
 });
 
 /* Notes from adding transfer functionality
-    1. Add an event listener to the transfer button and prevent the page from refreshing 
-    2. Assign the transfer amount to a variable 
+    1. Add an event listener to the transfer button and prevent the page from refreshing
+    2. Assign the transfer amount to a variable
     3. Use the .find method to look for the specific username the amount was transferred o and stored it in a variable
     4. .blur() the amounts
     5. Check if the transfer is positive, and check if the user has enough money to transfer
         - We need to update the calcDisplayBalance function to store the balance of the account based off the movement since it was previously hardcoded
         - We need to check if the receiver account exists
-        - We need make sure the user cannot transfer to himself 
+        - We need make sure the user cannot transfer to himself
         - Check if the receiver account exists with optional chaining (?)
     6. Push a negative amount of the transfer from the currentAccount; Push a positive amount of the transfer to the receiver
     7. Refactoring the UI display functions into one function
@@ -281,4 +282,46 @@ btnClose.addEventListener("click", function (e) {
   2. Check if the username value and password is the same as the current account details
   3. Use the .findIndex() method to loop through the array to find the matching account username and then splice that specific index from the accounts array
   4. Clear input fields for closing the account
+*/
+
+// Loan functionality
+// Loan is only granted if there is at least one deposit with at least 10% of the requested loan amount
+btnLoan.addEventListener("click", function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  const highestDeposit = currentAccount.movements.reduce((acc, mov) => {
+    if (acc > mov) return acc;
+    else return mov;
+  }, currentAccount.movements[0]);
+
+  const minimumLoan = amount * 0.1;
+
+  if (
+    amount > 0 &&
+    currentAccount.movements.some((mov) => mov >= amount * 0.1)
+  ) {
+    // Add the loan to the balance
+    currentAccount.movements.push(amount);
+
+    // Update the UI
+    updateUI(currentAccount);
+
+    // Empty fields
+    inputLoanAmount.value = "";
+    inputLoanAmount.blur();
+  } else {
+    alert(
+      `Error: You can only request a loan if there is one deposit with at least 10% of the requested loan amount.\nLoan Requested: ${amount}\nDeposit required for your loan request: ${minimumLoan}\nYour highest deposit is: ${highestDeposit}`
+    );
+  }
+});
+
+/* Notes from loan functionality
+    1. Add an event listener to the loan button
+    2. Assign the input value of the loan amount to a variable
+    3. Add the loan condition with an if statement - the .some() method is then used to specify this condition to loop through the movements array
+  
+
 */
