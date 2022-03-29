@@ -63,10 +63,12 @@ const accounts = [account1, account2, account3, account4];
 // FUNCTIONS
 
 // Updates DOM for movements of deposits and withdrawals
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
   containerMovements.innerHTML = "";
 
-  movements.forEach(function (mov, i) {
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
+  movs.forEach(function (mov, i) {
     const type = mov > 0 ? "deposit" : "withdrawal";
 
     const html = `
@@ -324,4 +326,25 @@ btnLoan.addEventListener("click", function (e) {
     3. Add the loan condition with an if statement - the .some() method is then used to specify this condition to loop through the movements array
   
 
+*/
+
+// Sorting functionality
+
+let sorted = false;
+
+btnSort.addEventListener("click", function (e) {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+});
+
+/* Notes from Sorting
+    1. Add a sort parameter in the displayMovements function and set the default value to false (to prevent sorting by default)
+    2. Create a new variable inside the displayMovements function, add a conditional to determine if sort is set to true 
+    3. To prevent array mutation, we use .slice() first to obtain a copy of the array before using .sort()
+    4. Refactor/Update the new variable into the displayMovements function 
+    5. Create a button/eventListener to change sort to true when clicked - to change to descending order
+    6. Also allow users to click sort again to change back the movements to normal
+      - Add a state variable to keep track we if are sorting the variable or not
+      - Inverse the state variable when the sort button is clicked
 */
