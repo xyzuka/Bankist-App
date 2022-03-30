@@ -1,86 +1,107 @@
-"use strict";
+'use strict';
 
 /////////////////////////////////////////////////
 // ELEMENTS
-const labelWelcome = document.querySelector(".welcome");
-const labelDate = document.querySelector(".date");
-const labelBalance = document.querySelector(".balance__value");
-const labelSumIn = document.querySelector(".summary__value--in");
-const labelSumOut = document.querySelector(".summary__value--out");
-const labelSumInterest = document.querySelector(".summary__value--interest");
-const labelTimer = document.querySelector(".timer");
+const labelWelcome = document.querySelector('.welcome');
+const labelDate = document.querySelector('.date');
+const labelBalance = document.querySelector('.balance__value');
+const labelSumIn = document.querySelector('.summary__value--in');
+const labelSumOut = document.querySelector('.summary__value--out');
+const labelSumInterest = document.querySelector('.summary__value--interest');
+const labelTimer = document.querySelector('.timer');
 
-const containerApp = document.querySelector(".app");
-const containerMovements = document.querySelector(".movements");
+const containerApp = document.querySelector('.app');
+const containerMovements = document.querySelector('.movements');
 
-const btnLogin = document.querySelector(".login__btn");
-const btnTransfer = document.querySelector(".form__btn--transfer");
-const btnLoan = document.querySelector(".form__btn--loan");
-const btnClose = document.querySelector(".form__btn--close");
-const btnSort = document.querySelector(".btn--sort");
+const btnLogin = document.querySelector('.login__btn');
+const btnTransfer = document.querySelector('.form__btn--transfer');
+const btnLoan = document.querySelector('.form__btn--loan');
+const btnClose = document.querySelector('.form__btn--close');
+const btnSort = document.querySelector('.btn--sort');
 
-const inputLoginUsername = document.querySelector(".login__input--user");
-const inputLoginPin = document.querySelector(".login__input--pin");
-const inputTransferTo = document.querySelector(".form__input--to");
-const inputTransferAmount = document.querySelector(".form__input--amount");
-const inputLoanAmount = document.querySelector(".form__input--loan-amount");
-const inputCloseUsername = document.querySelector(".form__input--user");
-const inputClosePin = document.querySelector(".form__input--pin");
+const inputLoginUsername = document.querySelector('.login__input--user');
+const inputLoginPin = document.querySelector('.login__input--pin');
+const inputTransferTo = document.querySelector('.form__input--to');
+const inputTransferAmount = document.querySelector('.form__input--amount');
+const inputLoanAmount = document.querySelector('.form__input--loan-amount');
+const inputCloseUsername = document.querySelector('.form__input--user');
+const inputClosePin = document.querySelector('.form__input--pin');
 
 /////////////////////////////////////////////////
 // DATA
 const account1 = {
-  owner: "Brandon Yee",
-  movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+  owner: 'Brandon Yee',
+  movements: [200, 455.23, -306.5, 25000, -642.21, -133.9, 79.97, 1300],
   interestRate: 1.2, // %
   pin: 1111,
+
+  movementsDates: [
+    '2019-11-18T21:31:17.178Z',
+    '2019-12-23T07:42:02.383Z',
+    '2020-01-28T09:15:04.904Z',
+    '2020-04-01T10:17:24.185Z',
+    '2020-05-08T14:11:59.604Z',
+    '2020-05-27T17:01:17.194Z',
+    '2020-07-11T23:36:17.929Z',
+    '2020-07-12T10:51:36.790Z',
+  ],
+  currency: 'EUR',
+  locale: 'pt-PT', // de-DE
 };
 
 const account2 = {
-  owner: "Jessica Davis",
+  owner: 'Jessica Davis',
   movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
   interestRate: 1.5,
   pin: 2222,
+
+  movementsDates: [
+    '2019-11-01T13:15:33.035Z',
+    '2019-11-30T09:48:16.867Z',
+    '2019-12-25T06:04:23.907Z',
+    '2020-01-25T14:18:46.235Z',
+    '2020-02-05T16:33:06.386Z',
+    '2020-04-10T14:43:26.374Z',
+    '2020-06-25T18:49:59.371Z',
+    '2020-07-26T12:01:20.894Z',
+  ],
+  currency: 'USD',
+  locale: 'en-US',
 };
 
-const account3 = {
-  owner: "Steven Thomas Williams",
-  movements: [200, -200, 340, -300, -20, 50, 400, -460],
-  interestRate: 0.7,
-  pin: 3333,
-};
-
-const account4 = {
-  owner: "Sarah Smith",
-  movements: [430, 1000, 700, 50, 90],
-  interestRate: 1,
-  pin: 4444,
-};
-
-const accounts = [account1, account2, account3, account4];
+const accounts = [account1, account2];
 
 /////////////////////////////////////////////////
 // FUNCTIONS
 
 // Updates DOM for movements of deposits and withdrawals
-const displayMovements = function (movements, sort = false) {
-  containerMovements.innerHTML = "";
+const displayMovements = function (acc, sort = false) {
+  containerMovements.innerHTML = '';
 
-  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  const movs = sort
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
 
   movs.forEach(function (mov, i) {
-    const type = mov > 0 ? "deposit" : "withdrawal";
+    const type = mov > 0 ? 'deposit' : 'withdrawal';
+
+    const date = new Date(acc.movementsDates[i]);
+    const day = `${date.getDate()}`.padStart(2, '0');
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const year = date.getFullYear();
+    const displayDate = `${day}/${month}/${year}`;
 
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-        <div class="movements__value">${mov}</div>
+        <div class="movements__date">${displayDate}</div>
+        <div class="movements__value">${mov.toFixed(2)}</div>
       </div>
     `;
 
-    containerMovements.insertAdjacentHTML("afterbegin", html);
+    containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
 
@@ -89,12 +110,15 @@ const displayMovements = function (movements, sort = false) {
     2. .insertAdjacentHTML() is used to insert the raw html created into the selected DOM element
     3. innerHTML returns all of the html items
     4. textContent returns only the text content
+    5. Added .toFixed() to the mov to limit figures to two decimal laces
+    6. Refactor the arguments to pass in the entire account so the dates can also be referenced
+    7. Use the current index in the forEach loop to loop through the movementDates
 */
 
 // Calculating user balance and updating the DOM
 const calcDisplayBalance = function (acc) {
   acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `$${acc.balance}`;
+  labelBalance.textContent = `$${acc.balance.toFixed(2)}`;
 };
 
 /* Notes from updating the DOM balance
@@ -108,12 +132,12 @@ const calcDisplaySummary = function (acc) {
   const incomes = acc.movements
     .filter((mov) => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumIn.textContent = `$${incomes}`;
+  labelSumIn.textContent = `$${incomes.toFixed(2)}`;
 
   const withdrawals = acc.movements
     .filter((mov) => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumOut.textContent = `$${Math.abs(withdrawals)}`;
+  labelSumOut.textContent = `$${Math.abs(withdrawals.toFixed(2))}`;
 
   // Interest is paid on each deposit of 1.2%
   // Only interest payments equal to or above $1 are included
@@ -122,7 +146,7 @@ const calcDisplaySummary = function (acc) {
     .map((deposit) => (deposit * acc.interestRate) / 100)
     .filter((interest, index, array) => interest >= 1)
     .reduce((acc, interest) => acc + interest, 0);
-  labelSumInterest.textContent = `$${interest}`;
+  labelSumInterest.textContent = `$${interest.toFixed(2)}`;
 };
 
 // Computing usernames for each user stored in data
@@ -132,9 +156,9 @@ const createUserNames = function (accs) {
   accs.forEach(function (acc) {
     acc.username = acc.owner
       .toLowerCase()
-      .split(" ")
+      .split(' ')
       .map((name) => name[0])
-      .join("");
+      .join('');
   });
 };
 createUserNames(accounts);
@@ -151,7 +175,7 @@ createUserNames(accounts);
 // Update UI functionality
 const updateUI = function (acc) {
   // Display movements
-  displayMovements(acc.movements);
+  displayMovements(acc);
 
   // Display balance
   calcDisplayBalance(acc);
@@ -164,8 +188,20 @@ const updateUI = function (acc) {
 
 let currentAccount;
 
+//////////////////////////////////////////
+//////////////////////////////////////////
+//* FAKE LOGIN
+currentAccount = account1;
+updateUI(currentAccount);
+labelWelcome.textContent = `Welcome back, ${
+  currentAccount.owner.split(' ')[0]
+}`;
+containerApp.style.opacity = 100;
+//////////////////////////////////////////
+//////////////////////////////////////////
+
 // EVENT HANDLERS
-btnLogin.addEventListener("click", function (e) {
+btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
 
   currentAccount = accounts.find(
@@ -174,18 +210,30 @@ btnLogin.addEventListener("click", function (e) {
   console.log(currentAccount);
 
   if (currentAccount?.pin === Number(inputLoginPin.value)) {
-    console.log("LOGIN");
+    console.log('LOGIN');
   }
 
   // Display UI and welcome message
   labelWelcome.textContent = `Welcome back, ${
-    currentAccount.owner.split(" ")[0]
+    currentAccount.owner.split(' ')[0]
   }`;
 
   containerApp.style.opacity = 100;
 
+  // Welcome screen date
+  // day/month/year format
+  const now = new Date();
+
+  const day = `${now.getDate()}`.padStart(2, '0');
+  const month = `${now.getMonth() + 1}`.padStart(2, '0');
+  const year = now.getFullYear();
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+
+  labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minute}`;
+
   // Empty login fields and un-focusing login
-  inputLoginUsername.value = inputLoginPin.value = "";
+  inputLoginUsername.value = inputLoginPin.value = '';
   inputLoginUsername.blur();
   inputLoginPin.blur();
 
@@ -209,7 +257,7 @@ btnLogin.addEventListener("click", function (e) {
 */
 
 // Transfer functionality
-btnTransfer.addEventListener("click", function (e) {
+btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
   const receiverAcc = accounts.find(
     (acc) => acc.username === inputTransferTo.value
@@ -218,7 +266,7 @@ btnTransfer.addEventListener("click", function (e) {
   console.log(amount, receiverAcc);
 
   // Empties input fields
-  inputTransferTo.value = inputTransferAmount.value = "";
+  inputTransferTo.value = inputTransferAmount.value = '';
   inputTransferTo.blur();
   inputTransferAmount.blur();
 
@@ -232,6 +280,10 @@ btnTransfer.addEventListener("click", function (e) {
     // Transferring
     currentAccount.movements.push(-amount);
     receiverAcc.movements.push(amount);
+
+    // Add transfer date
+    currentAccount.movementsDates.push(new Date().toISOString());
+    receiverAcc.movementsDates.push(new Date().toISOString());
 
     // Updating UI
     updateUI(currentAccount);
@@ -250,6 +302,7 @@ btnTransfer.addEventListener("click", function (e) {
         - Check if the receiver account exists with optional chaining (?)
     6. Push a negative amount of the transfer from the currentAccount; Push a positive amount of the transfer to the receiver
     7. Refactoring the UI display functions into one function
+    8. Refactoring transfer function to include date of transfer for the receiver and user
 */
 
 // THE .findIndex() METHOD
@@ -257,7 +310,7 @@ btnTransfer.addEventListener("click", function (e) {
 
 // Practical Example: Close account functionality
 // Closing an account will delete the user's account and from accounts array and the .findIndex() method will help us target the specific account
-btnClose.addEventListener("click", function (e) {
+btnClose.addEventListener('click', function (e) {
   e.preventDefault();
 
   if (
@@ -275,7 +328,7 @@ btnClose.addEventListener("click", function (e) {
     containerApp.style.opacity = 0;
 
     // Clearing fields
-    inputCloseUsername.value = inputClosePin.value = "";
+    inputCloseUsername.value = inputClosePin.value = '';
   }
 });
 
@@ -288,10 +341,15 @@ btnClose.addEventListener("click", function (e) {
 
 // Loan functionality
 // Loan is only granted if there is at least one deposit with at least 10% of the requested loan amount
-btnLoan.addEventListener("click", function (e) {
+btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
 
-  const amount = Number(inputLoanAmount.value);
+  const emptyLoanFields = function () {
+    inputLoanAmount.value = '';
+    inputLoanAmount.blur();
+  };
+
+  const amount = Math.floor(inputLoanAmount.value);
 
   const highestDeposit = currentAccount.movements.reduce((acc, mov) => {
     if (acc > mov) return acc;
@@ -307,16 +365,19 @@ btnLoan.addEventListener("click", function (e) {
     // Add the loan to the balance
     currentAccount.movements.push(amount);
 
+    // Add loan date
+    currentAccount.movementsDates.push(new Date().toISOString());
+
     // Update the UI
     updateUI(currentAccount);
 
     // Empty fields
-    inputLoanAmount.value = "";
-    inputLoanAmount.blur();
+    emptyLoanFields();
   } else {
     alert(
       `Error: You can only request a loan if there is one deposit with at least 10% of the requested loan amount.\nLoan Requested: ${amount}\nDeposit required for your loan request: ${minimumLoan}\nYour highest deposit is: ${highestDeposit}`
     );
+    emptyLoanFields();
   }
 });
 
@@ -324,15 +385,16 @@ btnLoan.addEventListener("click", function (e) {
     1. Add an event listener to the loan button
     2. Assign the input value of the loan amount to a variable
     3. Add the loan condition with an if statement - the .some() method is then used to specify this condition to loop through the movements array
-  
-
+    4. Added rounding so the user cannot receive decimal amounts - loan amounts are rounded down to nearest dollar
+    5. Using the .toFixed() method to limit displayed numbers to two decimal places
+    6. Refactored code to include date the loan was requested
 */
 
 // Sorting functionality
 
 let sorted = false;
 
-btnSort.addEventListener("click", function (e) {
+btnSort.addEventListener('click', function (e) {
   e.preventDefault();
   displayMovements(currentAccount.movements, !sorted);
   sorted = !sorted;
@@ -340,9 +402,9 @@ btnSort.addEventListener("click", function (e) {
 
 /* Notes from Sorting
     1. Add a sort parameter in the displayMovements function and set the default value to false (to prevent sorting by default)
-    2. Create a new variable inside the displayMovements function, add a conditional to determine if sort is set to true 
+    2. Create a new variable inside the displayMovements function, add a conditional to determine if sort is set to true
     3. To prevent array mutation, we use .slice() first to obtain a copy of the array before using .sort()
-    4. Refactor/Update the new variable into the displayMovements function 
+    4. Refactor/Update the new variable into the displayMovements function
     5. Create a button/eventListener to change sort to true when clicked - to change to descending order
     6. Also allow users to click sort again to change back the movements to normal
       - Add a state variable to keep track we if are sorting the variable or not
