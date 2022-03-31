@@ -183,23 +183,34 @@ const updateUI = function (acc) {
   calcDisplaySummary(acc);
 };
 
+// Log out timer
+const startLogOutTimer = function () {
+  const tick = function () {
+    let min = String(Math.trunc(time / 60)).padStart(2, '0');
+    let sec = String(time % 60).padStart(2, '0');
+
+    labelTimer.textContent = `${min}:${sec}`;
+
+    if (time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = 'Login in to get started';
+      containerApp.style.opacity = 0;
+    }
+
+    time--;
+  };
+
+  let time = 120;
+
+  tick();
+  const timer = setInterval(tick, 1000);
+
+  return timer;
+};
+
+let currentAccount, timer;
+
 // Login functionality
-
-let currentAccount;
-
-//////////////////////////////////////////
-//////////////////////////////////////////
-//* FAKE LOGIN
-currentAccount = account1;
-updateUI(currentAccount);
-labelWelcome.textContent = `Welcome back, ${
-  currentAccount.owner.split(' ')[0]
-}`;
-containerApp.style.opacity = 100;
-//////////////////////////////////////////
-//////////////////////////////////////////
-
-// EVENT HANDLERS
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
 
@@ -238,6 +249,10 @@ btnLogin.addEventListener('click', function (e) {
   inputLoginUsername.blur();
   inputLoginPin.blur();
 
+  // Logout timer
+  if (timer) clearInterval(timer);
+  timer = startLogOutTimer();
+
   updateUI(currentAccount);
 });
 
@@ -272,6 +287,10 @@ btnTransfer.addEventListener('click', function (e) {
 
     // Updating UI
     updateUI(currentAccount);
+
+    // Reset timer
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 
@@ -325,14 +344,20 @@ btnLoan.addEventListener('click', function (e) {
     amount > 0 &&
     currentAccount.movements.some((mov) => mov >= amount * 0.1)
   ) {
-    // Add the loan to the balance
-    currentAccount.movements.push(amount);
+    setTimeout(function () {
+      // Add the loan to the balance
+      currentAccount.movements.push(amount);
 
-    // Add loan date
-    currentAccount.movementsDates.push(new Date().toISOString());
+      // Add loan date
+      currentAccount.movementsDates.push(new Date().toISOString());
 
-    // Update the UI
-    updateUI(currentAccount);
+      // Update the UI
+      updateUI(currentAccount);
+
+      // Reset timer
+      clearInterval(timer);
+      timer = startLogOutTimer();
+    }, 2500);
 
     // Empty fields
     emptyLoanFields();
@@ -450,4 +475,16 @@ btnSort.addEventListener('click', function (e) {
     1. Similar to dates, it will take in a locale string and format the number based on the country's locale
     2. We can pass in an object following the locale, which will define the units and style of the number
     3. For the bankist app, we passed in the Intl API for numbers to format the number based off the user's currency (formatting the movement and balance amounts)
+*/
+
+/* Notes from using a timer to simulate the approval of a loan:
+    1. Refactoring the code inside the loan event listener into a function to be use with setTimeout()
+    
+  Notes from setInterval - to create an updating clock to log user out after 5 minutes of inactivity
+    1. Timer will start once the user logs in, so run a function which will count down once the user logs in
+    2. Time starts at 5 minutes
+    3. Call the timer every second to decrease 1s and print the remaining time to the UI
+    5. When time reaches 0, stop the timer and log the user out by hiding the UI 
+    6. Update the login function to check if there is a timer running already, if there is then the clearInterval() function will run to reset the timer
+    7. Also updated the function to keep track of each activity of the user - resets the timer when the user does an action (transfer and loans)
 */
