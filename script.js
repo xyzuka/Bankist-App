@@ -120,27 +120,11 @@ const displayMovements = function (acc, sort = false) {
   });
 };
 
-/* Notes from updating the DOM movement container:
-    1. Template literals are useful for inserting raw html
-    2. .insertAdjacentHTML() is used to insert the raw html created into the selected DOM element
-    3. innerHTML returns all of the html items
-    4. textContent returns only the text content
-    5. Added .toFixed() to the mov to limit figures to two decimal laces
-    6. Refactor the arguments to pass in the entire account so the dates can also be referenced
-    7. Use the current index in the forEach loop to loop through the movementDates
-*/
-
 // Calculating user balance and updating the DOM
 const calcDisplayBalance = function (acc) {
   acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
   labelBalance.textContent = `$${acc.balance.toFixed(2)}`;
 };
-
-/* Notes from updating the DOM balance
-    1. A function was created taking in the user account's movements as a parameter
-    2. This movement is then passed as an array with the reduce method to calculate the total end sum of the balance
-    3. The DOM element which display's the user's balance is then updated based off the total end sum
-*/
 
 // Calculating total deposits, withdraws, interest and updating the DOM
 const calcDisplaySummary = function (acc) {
@@ -177,15 +161,6 @@ const createUserNames = function (accs) {
   });
 };
 createUserNames(accounts);
-
-/* Notes from computing usernames
-    1. A function was created to create a new property in the accounts object to create the account's username based off their initials
-    2. The initials were created by referencing the account owner's name and chaining four methods
-    - .toLowerCase() : to convert the owner's name to lowercase
-    - .split(' ') : to split the owner's name into an array of substrings
-    - .map((name) => name[0]) : to obtain the first letter of the owner's name
-    - .join() : to join the first letters together to create the initials as a single string
-*/
 
 // Update UI functionality
 const updateUI = function (acc) {
@@ -255,22 +230,6 @@ btnLogin.addEventListener('click', function (e) {
   updateUI(currentAccount);
 });
 
-/* Notes from creating Login:
-    1. Button in a form element - default behavior for a form when a form is submitted is to reload the page
-      - To solve this, we need to prevent the form from reloading
-      - Give an event parameter in the function, and call the preventDefault method
-      - preventDefault(); prevents a form to submit and reload the page
-    2. Using the .find() method, we will match the user input to the accounts object's username
-    3. Define a current account to keep track of the account logged in
-    4. Add a if statement to match the login pin (also convert the user input as a number since .value always returns a string)
-    5. To see if an account exists when entering a pin, we use optional chaining (?) - will short-circuit with a return value of undefined if currentAccount is null or undefined
-    6. Change the textContent of the login prompt with a welcome message referencing to the currentAccount logged in
-    7. Setting the opacity of the dashboard back to 100
-    8. Running the functions which displays the movements, balance, and summary based off the currentAccount
-    9. Emptying the login field once the user has logged in
-    10. Updating the interest function based off the current user logged in
-*/
-
 // Transfer functionality
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
@@ -305,21 +264,6 @@ btnTransfer.addEventListener('click', function (e) {
   }
 });
 
-/* Notes from adding transfer functionality
-    1. Add an event listener to the transfer button and prevent the page from refreshing
-    2. Assign the transfer amount to a variable
-    3. Use the .find method to look for the specific username the amount was transferred o and stored it in a variable
-    4. .blur() the amounts
-    5. Check if the transfer is positive, and check if the user has enough money to transfer
-        - We need to update the calcDisplayBalance function to store the balance of the account based off the movement since it was previously hardcoded
-        - We need to check if the receiver account exists
-        - We need make sure the user cannot transfer to himself
-        - Check if the receiver account exists with optional chaining (?)
-    6. Push a negative amount of the transfer from the currentAccount; Push a positive amount of the transfer to the receiver
-    7. Refactoring the UI display functions into one function
-    8. Refactoring transfer function to include date of transfer for the receiver and user
-*/
-
 // THE .findIndex() METHOD
 // Returns the index of the returned element and not the element itself
 
@@ -346,13 +290,6 @@ btnClose.addEventListener('click', function (e) {
     inputCloseUsername.value = inputClosePin.value = '';
   }
 });
-
-/* Notes from closing user account
-  1. Add an event listener to the close account button
-  2. Check if the username value and password is the same as the current account details
-  3. Use the .findIndex() method to loop through the array to find the matching account username and then splice that specific index from the accounts array
-  4. Clear input fields for closing the account
-*/
 
 // Loan functionality
 // Loan is only granted if there is at least one deposit with at least 10% of the requested loan amount
@@ -396,15 +333,6 @@ btnLoan.addEventListener('click', function (e) {
   }
 });
 
-/* Notes from loan functionality
-    1. Add an event listener to the loan button
-    2. Assign the input value of the loan amount to a variable
-    3. Add the loan condition with an if statement - the .some() method is then used to specify this condition to loop through the movements array
-    4. Added rounding so the user cannot receive decimal amounts - loan amounts are rounded down to nearest dollar
-    5. Using the .toFixed() method to limit displayed numbers to two decimal places
-    6. Refactored code to include date the loan was requested
-*/
-
 // Sorting functionality
 
 let sorted = false;
@@ -414,6 +342,79 @@ btnSort.addEventListener('click', function (e) {
   displayMovements(currentAccount.movements, !sorted);
   sorted = !sorted;
 });
+
+// IGNORE - NOTES:
+/* Notes from updating the DOM movement container:
+    1. Template literals are useful for inserting raw html
+    2. .insertAdjacentHTML() is used to insert the raw html created into the selected DOM element
+    3. innerHTML returns all of the html items
+    4. textContent returns only the text content
+    5. Added .toFixed() to the mov to limit figures to two decimal laces
+    6. Refactor the arguments to pass in the entire account so the dates can also be referenced
+    7. Use the current index in the forEach loop to loop through the movementDates
+*/
+
+/* Notes from computing usernames
+    1. A function was created to create a new property in the accounts object to create the account's username based off their initials
+    2. The initials were created by referencing the account owner's name and chaining four methods
+    - .toLowerCase() : to convert the owner's name to lowercase
+    - .split(' ') : to split the owner's name into an array of substrings
+    - .map((name) => name[0]) : to obtain the first letter of the owner's name
+    - .join() : to join the first letters together to create the initials as a single string
+*/
+
+/* Notes from updating the DOM balance
+    1. A function was created taking in the user account's movements as a parameter
+    2. This movement is then passed as an array with the reduce method to calculate the total end sum of the balance
+    3. The DOM element which display's the user's balance is then updated based off the total end sum
+*/
+
+/* Notes from creating Login:
+    1. Button in a form element - default behavior for a form when a form is submitted is to reload the page
+      - To solve this, we need to prevent the form from reloading
+      - Give an event parameter in the function, and call the preventDefault method
+      - preventDefault(); prevents a form to submit and reload the page
+    2. Using the .find() method, we will match the user input to the accounts object's username
+    3. Define a current account to keep track of the account logged in
+    4. Add a if statement to match the login pin (also convert the user input as a number since .value always returns a string)
+    5. To see if an account exists when entering a pin, we use optional chaining (?) - will short-circuit with a return value of undefined if currentAccount is null or undefined
+    6. Change the textContent of the login prompt with a welcome message referencing to the currentAccount logged in
+    7. Setting the opacity of the dashboard back to 100
+    8. Running the functions which displays the movements, balance, and summary based off the currentAccount
+    9. Emptying the login field once the user has logged in
+    10. Updating the interest function based off the current user logged in
+*/
+
+/* Notes from adding transfer functionality
+    1. Add an event listener to the transfer button and prevent the page from refreshing
+    2. Assign the transfer amount to a variable
+    3. Use the .find method to look for the specific username the amount was transferred o and stored it in a variable
+    4. .blur() the amounts
+    5. Check if the transfer is positive, and check if the user has enough money to transfer
+        - We need to update the calcDisplayBalance function to store the balance of the account based off the movement since it was previously hardcoded
+        - We need to check if the receiver account exists
+        - We need make sure the user cannot transfer to himself
+        - Check if the receiver account exists with optional chaining (?)
+    6. Push a negative amount of the transfer from the currentAccount; Push a positive amount of the transfer to the receiver
+    7. Refactoring the UI display functions into one function
+    8. Refactoring transfer function to include date of transfer for the receiver and user
+*/
+
+/* Notes from closing user account
+  1. Add an event listener to the close account button
+  2. Check if the username value and password is the same as the current account details
+  3. Use the .findIndex() method to loop through the array to find the matching account username and then splice that specific index from the accounts array
+  4. Clear input fields for closing the account
+*/
+
+/* Notes from loan functionality
+    1. Add an event listener to the loan button
+    2. Assign the input value of the loan amount to a variable
+    3. Add the loan condition with an if statement - the .some() method is then used to specify this condition to loop through the movements array
+    4. Added rounding so the user cannot receive decimal amounts - loan amounts are rounded down to nearest dollar
+    5. Using the .toFixed() method to limit displayed numbers to two decimal places
+    6. Refactored code to include date the loan was requested
+*/
 
 /* Notes from Sorting
     1. Add a sort parameter in the displayMovements function and set the default value to false (to prevent sorting by default)
