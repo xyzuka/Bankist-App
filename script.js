@@ -45,8 +45,8 @@ const account1 = {
     '2022-03-28T23:36:17.929Z',
     '2022-03-30T10:51:36.790Z',
   ],
-  currenc2: 'EUR',
-  locale: 'pt-PT', // de-DE
+  currency: 'USD',
+  locale: 'en-US',
 };
 
 const account2 = {
@@ -65,8 +65,8 @@ const account2 = {
     '2022-03-25T18:49:59.371Z',
     '2022-03-26T12:01:20.894Z',
   ],
-  currency: 'USD',
-  locale: 'en-US',
+  currency: 'EUR',
+  locale: 'pt-PT',
 };
 
 const accounts = [account1, account2];
@@ -75,7 +75,7 @@ const accounts = [account1, account2];
 // FUNCTIONS
 
 // Format movement date function
-const formatMovementDate = function (date) {
+const formatMovementDate = function (date, locale) {
   const calcDaysPassed = (date1, date2) =>
     Math.abs(date2 - date1) / (1000 * 60 * 60 * 24);
   // 1000 mil in a sec => 60sec in a min =>  60min in a hr => 24hrs in a day
@@ -86,10 +86,7 @@ const formatMovementDate = function (date) {
   if (daysPassed === 1) return 'Yesterday';
   if (daysPassed <= 7) return `${daysPassed} days ago`;
 
-  const day = `${date.getDate()}`.padStart(2, '0');
-  const month = `${date.getMonth() + 1}`.padStart(2, '0');
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
+  return new Intl.DateTimeFormat(locale).format(date);
 };
 
 // Updates DOM for movements of deposits and withdrawals
@@ -104,7 +101,7 @@ const displayMovements = function (acc, sort = false) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
     const date = new Date(acc.movementsDates[i]);
-    const displayDate = formatMovementDate(date);
+    const displayDate = formatMovementDate(date, acc.locale);
 
     const html = `
       <div class="movements__row">
@@ -211,16 +208,18 @@ btnLogin.addEventListener('click', function (e) {
   containerApp.style.opacity = 100;
 
   // Welcome screen date
-  // day/month/year format
+  // EXPERIMENT WITH API
   const now = new Date();
+  const options = {
+    hour: 'numeric',
+    minute: 'numeric',
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+  };
+  const locale = currentAccount.locale;
 
-  const day = `${now.getDate()}`.padStart(2, '0');
-  const month = `${now.getMonth() + 1}`.padStart(2, '0');
-  const year = now.getFullYear();
-  const hour = `${now.getHours()}`.padStart(2, '0');
-  const minute = `${now.getMinutes()}`.padStart(2, '0');
-
-  labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minute}`;
+  labelDate.textContent = new Intl.DateTimeFormat(locale, options).format(now);
 
   // Empty login fields and un-focusing login
   inputLoginUsername.value = inputLoginPin.value = '';
@@ -425,4 +424,13 @@ btnSort.addEventListener('click', function (e) {
     6. Also allow users to click sort again to change back the movements to normal
       - Add a state variable to keep track we if are sorting the variable or not
       - Inverse the state variable when the sort button is clicked
+*/
+
+/* Notes from Internationalizing Dates with the Intl API 
+    1. new Intl.DateTimeFormat('en-AU', options).format(now);
+        - .DateTimeFormat accepts two arguments - a location tag to format the time, an object to "style" the formatting, followed by the format method taking in the time
+    2. It is better to get the locale from the user's browser rather than manually defining it (use navigator.language)
+    3. Refactoring the code to consider the user's locale
+    4. Formatting the dates in the movements based off the user's locale
+
 */
