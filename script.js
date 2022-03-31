@@ -89,6 +89,14 @@ const formatMovementDate = function (date, locale) {
   return new Intl.DateTimeFormat(locale).format(date);
 };
 
+// Formats Currencies
+const formatCur = function (value, locale, currency) {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency,
+  }).format(value);
+};
+
 // Updates DOM for movements of deposits and withdrawals
 const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
@@ -103,14 +111,17 @@ const displayMovements = function (acc, sort = false) {
     const date = new Date(acc.movementsDates[i]);
     const displayDate = formatMovementDate(date, acc.locale);
 
+    const formattedMov = formatCur(mov, acc.locale, acc.currency);
+
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
         <div class="movements__date">${displayDate}</div>
-        <div class="movements__value">${mov.toFixed(2)}</div>
+        <div class="movements__value">${formattedMov}</div>
       </div>
+      \
     `;
 
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -120,7 +131,8 @@ const displayMovements = function (acc, sort = false) {
 // Calculating user balance and updating the DOM
 const calcDisplayBalance = function (acc) {
   acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `$${acc.balance.toFixed(2)}`;
+
+  labelBalance.textContent = formatCur(acc.balance, acc.locale, acc.currency);
 };
 
 // Calculating total deposits, withdraws, interest and updating the DOM
@@ -128,12 +140,12 @@ const calcDisplaySummary = function (acc) {
   const incomes = acc.movements
     .filter((mov) => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumIn.textContent = `$${incomes.toFixed(2)}`;
+  labelSumIn.textContent = formatCur(incomes, acc.locale, acc.currency);
 
   const withdrawals = acc.movements
     .filter((mov) => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumOut.textContent = `$${Math.abs(withdrawals.toFixed(2))}`;
+  labelSumOut.textContent = formatCur(withdrawals, acc.locale, acc.currency);
 
   // Interest is paid on each deposit of 1.2%
   // Only interest payments equal to or above $1 are included
@@ -142,7 +154,7 @@ const calcDisplaySummary = function (acc) {
     .map((deposit) => (deposit * acc.interestRate) / 100)
     .filter((interest, index, array) => interest >= 1)
     .reduce((acc, interest) => acc + interest, 0);
-  labelSumInterest.textContent = `$${interest.toFixed(2)}`;
+  labelSumInterest.textContent = formatCur(interest, acc.locale, acc.currency);
 };
 
 // Computing usernames for each user stored in data
@@ -432,5 +444,10 @@ btnSort.addEventListener('click', function (e) {
     2. It is better to get the locale from the user's browser rather than manually defining it (use navigator.language)
     3. Refactoring the code to consider the user's locale
     4. Formatting the dates in the movements based off the user's locale
+*/
 
+/* Notes from Internationalizing Numbers
+    1. Similar to dates, it will take in a locale string and format the number based on the country's locale
+    2. We can pass in an object following the locale, which will define the units and style of the number
+    3. For the bankist app, we passed in the Intl API for numbers to format the number based off the user's currency (formatting the movement and balance amounts)
 */
